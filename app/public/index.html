@@ -3,178 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Commerce MVP - DevStore</title>
+    <title>DevStore — E-Commerce Simulator</title>
     <style>
         :root {
-            --primary: #4F46E5;
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
             --success: #10B981;
             --danger: #EF4444;
-            --bg: #F3F4F6;
-            --text: #1F2937;
+            --warning: #F59E0B;
+            --bg: #0F172A;
+            --surface: #1E293B;
+            --surface-hover: #334155;
+            --border: #334155;
+            --text: #F1F5F9;
+            --muted: #94A3B8;
         }
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
         }
-        .dashboard {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-        }
-        .header {
-            margin-bottom: 2rem;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 2rem;
-            color: var(--primary);
-        }
-        .version-badge {
-            display: inline-block;
-            background: #E0E7FF;
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 0.875rem;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .action-group {
+        .navbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .cart-badge {
+            background: var(--primary-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .section-title {
+            font-size: 1.1rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
+        .product-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: border-color 0.2s, transform 0.15s;
+        }
+        .product-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .product-category {
+            font-size: 0.7rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .product-name {
+            font-weight: 600;
+            margin: 0.4rem 0;
+            font-size: 0.95rem;
+        }
+        .product-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 0.75rem;
+        }
+        .product-stock {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+        }
+        .sim-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .sim-panel h2 {
+            margin: 0 0 0.5rem;
+            font-size: 1rem;
+        }
+        .sim-panel p {
+            color: var(--muted);
+            font-size: 0.875rem;
+            margin: 0 0 1rem;
+        }
+        .btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
         button {
             border: none;
-            padding: 12px 20px;
+            padding: 10px 18px;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.875rem;
             font-weight: 600;
             color: white;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            display: flex;
+            transition: opacity 0.2s, transform 0.1s;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
-        button:active {
-            transform: scale(0.98);
+        button:active { transform: scale(0.97); }
+        button:hover { opacity: 0.88; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); color: #1E293B; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
         }
-        button:hover {
-            opacity: 0.9;
-        }
-        .btn-success { background-color: var(--success); }
-        .btn-danger { background-color: var(--danger); }
-        .btn-primary { background-color: var(--primary); }
-
-        .status-box {
-            padding: 1rem;
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .status-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            background: #F9FAFB;
-            border: 1px solid #E5E7EB;
-            min-height: 50px;
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--muted);
+            min-height: 48px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            color: #6B7280;
+        }
+        .status-bar.success { border-color: var(--success); color: var(--success); }
+        .status-bar.error { border-color: var(--danger); color: var(--danger); }
+        .cart-items {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem;
+        }
+        .cart-items li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <div class="header">
-        <h1>🛒 DevStore Simulator</h1>
-        <div class="version-badge" id="app-version">App Versão 1.0.0</div>
+<nav class="navbar">
+    <h1>🛒 DevStore <span class="badge" id="app-version">v2.0.0</span></h1>
+    <div class="cart-badge">🛍️ Carrinho: <strong id="cart-count">0</strong> itens · R$ <strong id="cart-total">0,00</strong></div>
+</nav>
+
+<div class="container">
+    <p class="section-title">Catálogo de Produtos</p>
+    <div class="products-grid" id="products-grid">
+        <p style="color:var(--muted)">Carregando produtos...</p>
     </div>
 
-    <div class="action-group">
-        <button class="btn-success" onclick="simularCompra()">
-            ✅ Simular Compra com Sucesso (Info Log)
-        </button>
-        <button class="btn-danger" onclick="simularFalhaPagamento()">
-            ❌ Simular Falha no Pagamento (Error Log)
-        </button>
-        <button class="btn-primary" onclick="simularBlackFriday()">
-            🚀 Simular Tráfego Black Friday (50 Req)
-        </button>
+    <div class="grid-2">
+        <div class="sim-panel">
+            <h2>🛍️ Fluxo de Compra</h2>
+            <p>Simula o journey real: visualizar produto → adicionar ao carrinho → checkout com pagamento.</p>
+            <ul class="cart-items" id="cart-list"></ul>
+            <div class="btn-row">
+                <button class="btn-success" onclick="finalizarCompra()">✅ Finalizar Compra (Checkout)</button>
+                <button class="btn-outline btn-sm" onclick="limparCarrinho()">Limpar carrinho</button>
+            </div>
+        </div>
+
+        <div class="sim-panel">
+            <h2>⚡ Cenários de Observabilidade</h2>
+            <p>Gera métricas, logs e traces para o Grafana e Loki.</p>
+            <div class="btn-row">
+                <button class="btn-danger" onclick="simularFalhaPagamento()">❌ Falha no Pagamento</button>
+                <button class="btn-warning" onclick="simularBlackFriday()">🚀 Black Friday (50 req)</button>
+                <button class="btn-primary" onclick="simularNavegacao()">👁️ Navegação em Massa</button>
+            </div>
+        </div>
     </div>
 
-    <div class="status-box" id="status">
-        Nenhuma ação realizada ainda.
-    </div>
+    <div class="status-bar" id="status">Aguardando ação...</div>
 </div>
 
 <script>
+    const sessionId = 'sess-' + Math.random().toString(36).slice(2, 10);
     const statusEl = document.getElementById('status');
+    let products = [];
 
-    function updateStatus(msg, isError = false) {
-        statusEl.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${msg}`;
-        statusEl.style.color = isError ? 'var(--danger)' : 'var(--text)';
+    function updateStatus(msg, type = '') {
+        statusEl.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        statusEl.className = 'status-bar' + (type ? ' ' + type : '');
     }
 
-    async function simularCompra() {
+    function formatBRL(value) {
+        return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    async function loadProducts() {
+        try {
+            const res = await fetch('/api/products');
+            products = await res.json();
+            renderProducts();
+        } catch (e) {
+            updateStatus('Erro ao carregar catálogo: ' + e.message, 'error');
+        }
+    }
+
+    function renderProducts() {
+        const grid = document.getElementById('products-grid');
+        grid.innerHTML = products.map(p => `
+            <div class="product-card">
+                <div class="product-category">${p.category}</div>
+                <div class="product-name">${p.name}</div>
+                <div class="product-price">R$ ${formatBRL(p.price)}</div>
+                <div class="product-stock">${p.stock} em estoque</div>
+                <div class="btn-row">
+                    <button class="btn-outline btn-sm" onclick="verProduto('${p.id}')">Ver</button>
+                    <button class="btn-primary btn-sm" onclick="adicionarAoCarrinho('${p.id}')">+ Carrinho</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function refreshCart() {
+        try {
+            const res = await fetch('/api/cart/' + sessionId);
+            const cart = await res.json();
+            const count = cart.items.reduce((s, i) => s + i.quantity, 0);
+            document.getElementById('cart-count').textContent = count;
+            document.getElementById('cart-total').textContent = formatBRL(cart.total);
+
+            const list = document.getElementById('cart-list');
+            if (cart.items.length === 0) {
+                list.innerHTML = '<li style="color:var(--muted)">Carrinho vazio</li>';
+                return;
+            }
+            list.innerHTML = cart.items.map(item => {
+                const prod = products.find(p => p.id === item.productId);
+                const name = prod ? prod.name : item.productId;
+                return `<li><span>${name} × ${item.quantity}</span></li>`;
+            }).join('');
+        } catch (e) {
+            updateStatus('Erro ao atualizar carrinho', 'error');
+        }
+    }
+
+    async function verProduto(id) {
+        try {
+            const res = await fetch('/api/products/' + id);
+            const prod = await res.json();
+            updateStatus(`Produto visualizado: ${prod.name} — métrica product_views incrementada`);
+        } catch (e) {
+            updateStatus('Erro ao visualizar produto', 'error');
+        }
+    }
+
+    async function adicionarAoCarrinho(productId) {
+        try {
+            updateStatus('Adicionando ao carrinho...');
+            await fetch('/api/cart/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, quantity: 1, sessionId }),
+            });
+            await refreshCart();
+            const prod = products.find(p => p.id === productId);
+            updateStatus(`${prod?.name || productId} adicionado ao carrinho`, 'success');
+        } catch (e) {
+            updateStatus('Erro ao adicionar: ' + e.message, 'error');
+        }
+    }
+
+    async function finalizarCompra() {
         try {
             updateStatus('Processando checkout...');
-            const response = await fetch('/api/checkout');
-            if (response.ok) {
-                updateStatus('Compra finalizada com sucesso! Log (200) gerado.');
+            const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, paymentMethod: 'credit_card' }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                await refreshCart();
+                updateStatus(`Pedido ${data.orderId.slice(0, 8)}... confirmado! Total: R$ ${formatBRL(data.total)} via ${data.paymentMethod}`, 'success');
             } else {
-                updateStatus('Falha ao processar compra.', true);
+                updateStatus(data.error || 'Falha no checkout', 'error');
             }
-        } catch (error) {
-            updateStatus('Erro na requisição: ' + error.message, true);
+        } catch (e) {
+            updateStatus('Erro no checkout: ' + e.message, 'error');
         }
+    }
+
+    function limparCarrinho() {
+        fetch('/api/cart/' + sessionId).then(() => refreshCart());
+        updateStatus('Use "Finalizar Compra" ou adicione novos itens.');
     }
 
     async function simularFalhaPagamento() {
         try {
-            updateStatus('Processando pagamento...');
-            const response = await fetch('/api/payment-error');
-            if (!response.ok) {
-                updateStatus('Pagamento negado! Log (500) gerado.', true);
-            } else {
-                updateStatus('Falha: Esperava erro 500 mas retornou ' + response.status);
-            }
-        } catch (error) {
-            updateStatus('Erro na requisição: ' + error.message, true);
+            updateStatus('Simulando falha no gateway...');
+            const res = await fetch('/api/payment-error');
+            const data = await res.json();
+            updateStatus(`Pagamento recusado: ${data.reason} (${data.paymentMethod}) — log de erro gerado`, 'error');
+        } catch (e) {
+            updateStatus('Erro: ' + e.message, 'error');
         }
     }
 
     async function simularBlackFriday() {
-        updateStatus('Iniciando pico de Black Friday (50 requisições simultâneas)...');
-        let successCount = 0;
-        let failCount = 0;
-
-        const requests = [];
-        for (let i = 0; i < 50; i++) {
-            requests.push(
-                fetch('/api/checkout')
-                    .then(res => {
-                        if (res.ok) successCount++;
-                        else failCount++;
-                    })
-                    .catch(() => failCount++)
-            );
-        }
-
-        await Promise.all(requests);
-        updateStatus(`🚀 Pico finalizado: ${successCount} compras simuladas com sucesso, ${failCount} falhas.`);
+        updateStatus('Disparando 50 checkouts simultâneos...');
+        let ok = 0, fail = 0;
+        const reqs = Array.from({ length: 50 }, () =>
+            fetch('/api/checkout').then(r => r.ok ? ok++ : fail++).catch(() => fail++)
+        );
+        await Promise.all(reqs);
+        updateStatus(`Black Friday: ${ok} pedidos OK, ${fail} falhas — pico de métricas gerado`, 'success');
     }
+
+    async function simularNavegacao() {
+        updateStatus('Simulando 20 visualizações de produtos...');
+        const picks = Array.from({ length: 20 }, () => products[Math.floor(Math.random() * products.length)]);
+        await Promise.all(picks.map(p => fetch('/api/products/' + p.id)));
+        updateStatus('20 page views registradas — métrica product_views atualizada', 'success');
+    }
+
+    loadProducts().then(refreshCart);
 </script>
 
 </body>
