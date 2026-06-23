@@ -39,6 +39,20 @@ const loginAttemptsTotal = new client.Counter({
   registers: [register],
 });
 
+const checkoutTotal = new client.Counter({
+  name: 'ecommerce_checkout_total',
+  help: 'Total de compras finalizadas no e-commerce',
+  labelNames: ['status'],
+  registers: [register],
+});
+
+const paymentErrorsTotal = new client.Counter({
+  name: 'ecommerce_payment_errors_total',
+  help: 'Total de falhas no pagamento no e-commerce',
+  labelNames: ['reason'],
+  registers: [register],
+});
+
 // ─────────────────────────────────────────
 // LOGS ESTRUTURADOS
 // ─────────────────────────────────────────
@@ -187,16 +201,19 @@ app.delete('/items/:id', (req, res) => {
 });
 
 // ─────────────────────────────────────────
-// NOVAS ROTAS MVP
+// NOVAS ROTAS MVP (E-COMMERCE)
 // ─────────────────────────────────────────
-app.get('/api/info', (req, res) => {
-  log('info', 'Log de informacao gerado');
-  res.status(200).json({ message: 'Log normal gerado (200)' });
+app.get('/api/checkout', (req, res) => {
+  checkoutTotal.inc({ status: 'success' });
+  const orderId = uuidv4();
+  log('info', `Order ${orderId} placed successfully`);
+  res.status(200).json({ message: 'Compra finalizada com sucesso (200)', orderId });
 });
 
-app.get('/api/erro', (req, res) => {
-  log('error', 'ERROR: Falha simulada');
-  res.status(500).json({ error: 'Falha simulada (500)' });
+app.get('/api/payment-error', (req, res) => {
+  paymentErrorsTotal.inc({ reason: 'insufficient_funds' });
+  log('error', 'Payment gateway error: Insufficient funds');
+  res.status(500).json({ error: 'Falha no processamento do pagamento (500)' });
 });
 
 // Rota não encontrada

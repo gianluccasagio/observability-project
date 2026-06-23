@@ -1,7 +1,6 @@
 ---
 - name: Deploy Observability Stack and Node.js App
   hosts: servers
-  become: yes
   tasks:
     - name: Ensure dependencies are installed (apt)
       apt:
@@ -17,11 +16,12 @@
         update_cache: yes
       when: ansible_os_family == "Debian"
 
-    - name: Ensure Docker is installed
+    - name: Ensure Docker is installed (ignoring failures in WSL)
       package:
         name: docker.io
         state: present
       when: ansible_os_family == "Debian"
+      ignore_errors: yes
 
     - name: Ensure Docker Compose is installed
       package:
@@ -30,7 +30,7 @@
       when: ansible_os_family == "Debian"
       ignore_errors: yes
 
-    - name: Start and enable Docker service
+    - name: Start and enable Docker service (ignoring in WSL)
       service:
         name: docker
         state: started
