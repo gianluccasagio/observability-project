@@ -367,7 +367,7 @@
         "kind": "Panel",
         "spec": {
           "id": 4,
-          "title": "Requests per Second",
+          "title": "Checkouts (Últimos 5m)",
           "description": "",
           "links": [],
           "data": {
@@ -709,7 +709,7 @@
         "kind": "Panel",
         "spec": {
           "id": 7,
-          "title": "Failed Login Attempts",
+          "title": "Falhas no Pagamento",
           "description": "",
           "links": [],
           "data": {
@@ -993,7 +993,7 @@
       "hideTimepicker": false,
       "fiscalYearStartMonth": 0
     },
-    "title": "Observability Dashboard",
+    "title": "DevStore (E-commerce) Observability",
     "variables": [],
     "preferences": {
       "layout": {
