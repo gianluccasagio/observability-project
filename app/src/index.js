@@ -1,9 +1,13 @@
 const express = require('express');
 const client = require('prom-client');
 const { v4: uuidv4 } = require('uuid');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
+
+// Configurar o Express para servir arquivos estáticos da pasta "public"
+app.use(express.static(path.join(__dirname, './../public')));
 
 const PORT = process.env.PORT || 8080;
 
@@ -182,6 +186,19 @@ app.delete('/items/:id', (req, res) => {
   res.json({ message: 'Item deletado com sucesso' });
 });
 
+// ─────────────────────────────────────────
+// NOVAS ROTAS MVP
+// ─────────────────────────────────────────
+app.get('/api/info', (req, res) => {
+  log('info', 'Log de informacao gerado');
+  res.status(200).json({ message: 'Log normal gerado (200)' });
+});
+
+app.get('/api/erro', (req, res) => {
+  log('error', 'ERROR: Falha simulada');
+  res.status(500).json({ error: 'Falha simulada (500)' });
+});
+
 // Rota não encontrada
 app.use((req, res) => {
   log('error', 'Rota nao encontrada', { path: req.path });
@@ -191,6 +208,10 @@ app.use((req, res) => {
 // ─────────────────────────────────────────
 // INICIAR SERVIDOR
 // ─────────────────────────────────────────
-app.listen(PORT, () => {
-  log('info', 'Servidor iniciado', { port: PORT, env: process.env.NODE_ENV });
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    log('info', 'Servidor iniciado', { port: PORT, env: process.env.NODE_ENV });
+  });
+}
+
+module.exports = app;

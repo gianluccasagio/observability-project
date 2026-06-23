@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle do Trabalho</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        .version {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 20px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+        .btn-info {
+            background-color: #28a745;
+        }
+        .btn-error {
+            background-color: #dc3545;
+        }
+        .btn-traffic {
+            background-color: #007bff;
+        }
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Painel de Controle</h1>
+    <div class="version" id="app-version">App Versão 1.0.0</div>
+
+    <button class="btn-info" onclick="gerarLogInfo()">Gerar Log de Informação</button>
+    <button class="btn-error" onclick="gerarLogError()">Gerar Log de Erro</button>
+    <button class="btn-traffic" onclick="simularTrafego()">Simular Tráfego de Usuários</button>
+
+    <div id="status"></div>
+</div>
+
+<script>
+    function updateStatus(msg) {
+        document.getElementById('status').innerText = msg;
+    }
+
+    async function gerarLogInfo() {
+        try {
+            updateStatus('Enviando request para log de informação...');
+            const response = await fetch('/api/info');
+            if (response.ok) {
+                updateStatus('Log de informação gerado com sucesso (200).');
+            } else {
+                updateStatus('Falha ao gerar log de informação.');
+            }
+        } catch (error) {
+            updateStatus('Erro na requisição: ' + error.message);
+        }
+    }
+
+    async function gerarLogError() {
+        try {
+            updateStatus('Enviando request para log de erro...');
+            const response = await fetch('/api/erro');
+            if (!response.ok) {
+                updateStatus('Log de erro gerado com sucesso (500).');
+            } else {
+                updateStatus('Falha: Esperava erro 500 mas retornou ' + response.status);
+            }
+        } catch (error) {
+            updateStatus('Erro na requisição: ' + error.message);
+        }
+    }
+
+    async function simularTrafego() {
+        updateStatus('Iniciando simulação de tráfego (50 requests)...');
+        let successCount = 0;
+        let failCount = 0;
+
+        const requests = [];
+        for (let i = 0; i < 50; i++) {
+            // Vamos disparar os requests para /api/info
+            requests.push(
+                fetch('/api/info')
+                    .then(res => {
+                        if (res.ok) successCount++;
+                        else failCount++;
+                    })
+                    .catch(() => failCount++)
+            );
+        }
+
+        await Promise.all(requests);
+        updateStatus(`Simulação concluída: ${successCount} sucesso(s), ${failCount} falha(s).`);
+    }
+</script>
+
+</body>
+</html>
