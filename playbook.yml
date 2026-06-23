@@ -1,0 +1,62 @@
+---
+- name: Deploy Observability Stack and Node.js App
+  hosts: servers
+  become: yes
+  tasks:
+    - name: Ensure dependencies are installed (apt)
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure Docker is installed
+      package:
+        name: docker.io
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure Docker Compose is installed
+      package:
+        name: docker-compose
+        state: present
+      when: ansible_os_family == "Debian"
+      ignore_errors: yes
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      ignore_errors: yes
+
+    - name: Start Docker Compose stack
+      command: docker compose up -d
+      args:
+        chdir: "{{ playbook_dir }}"
+      register: compose_output
+
+    - name: Wait for Grafana to be ready
+      pause:
+        seconds: 15
+
+    - name: Validate Grafana is responding (HTTP 200)
+      uri:
+        url: http://localhost:3000/login
+        method: GET
+        status_code: 200
+      register: grafana_status
+      retries: 5
+      delay: 10
+      until: grafana_status.status == 200
+
+    - name: Print Grafana validation success message
+      debug:
+        msg: "Grafana is running and responded with HTTP 200!"
